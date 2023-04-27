@@ -24,7 +24,10 @@ class MainActivity : ComponentActivity() {
                     modifier = Modifier.fillMaxSize(),
                     color = MaterialTheme.colorScheme.background
                 ) {
-                    HtmlView()
+                    val a = """
+                    {"name":"HellO"}
+                    """
+                    HtmlView(jsonData = a)
                 }
             }
         }
@@ -32,14 +35,14 @@ class MainActivity : ComponentActivity() {
 }
 
 @Composable
-fun HtmlView() {
+fun HtmlView(jsonData: String) {
     val assetManager = LocalContext.current.assets
     AndroidView(
         factory = { context ->
             WebView(context).apply {
                 loadDataWithBaseURL(
                     null,
-                    loadHtmlFromAssets(assetManager),
+                    loadHtmlFromAssets(assetManager, jsonData),
                     "text/html",
                     "UTF-8",
                     null
@@ -49,15 +52,17 @@ fun HtmlView() {
         update = { view ->
             view.loadDataWithBaseURL(
                 null,
-                loadHtmlFromAssets(assetManager),
+                loadHtmlFromAssets(assetManager, jsonData),
                 "text/html",
                 "UTF-8",
                 null
             )
         }
     )
+
 }
 
-fun loadHtmlFromAssets(assetManager: AssetManager): String {
-    return assetManager.open("index.html").bufferedReader().use { it.readText() }
+fun loadHtmlFromAssets(assetManager: AssetManager, jsonData: String): String {
+    val htmlTemplate = assetManager.open("index.html").bufferedReader().use { it.readText() }
+    return htmlTemplate.replace("{{JSON_DATA}}", jsonData)
 }
